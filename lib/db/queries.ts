@@ -24,6 +24,8 @@ import {
   chat,
   type DBMessage,
   document,
+  type DocumentCollaborator,
+  documentCollaborator,
   message,
   type Suggestion,
   stream,
@@ -557,6 +559,103 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to get stream ids by chat id"
+    );
+  }
+}
+
+export async function addDocumentCollaborator({
+  documentId,
+  userId,
+}: {
+  documentId: string;
+  userId: string;
+}) {
+  try {
+    return await db.insert(documentCollaborator).values({
+      documentId,
+      userId,
+      createdAt: new Date(),
+    });
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to add document collaborator"
+    );
+  }
+}
+
+export async function removeDocumentCollaborator({
+  documentId,
+  userId,
+}: {
+  documentId: string;
+  userId: string;
+}) {
+  try {
+    return await db
+      .delete(documentCollaborator)
+      .where(
+        and(
+          eq(documentCollaborator.documentId, documentId),
+          eq(documentCollaborator.userId, userId)
+        )
+      );
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to remove document collaborator"
+    );
+  }
+}
+
+export async function getDocumentCollaborators({
+  documentId,
+}: {
+  documentId: string;
+}) {
+  try {
+    return await db
+      .select({
+        userId: documentCollaborator.userId,
+        email: user.email,
+        createdAt: documentCollaborator.createdAt,
+      })
+      .from(documentCollaborator)
+      .innerJoin(user, eq(documentCollaborator.userId, user.id))
+      .where(eq(documentCollaborator.documentId, documentId))
+      .orderBy(asc(documentCollaborator.createdAt));
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get document collaborators"
+    );
+  }
+}
+
+export async function isDocumentCollaborator({
+  documentId,
+  userId,
+}: {
+  documentId: string;
+  userId: string;
+}) {
+  try {
+    const [collaborator] = await db
+      .select()
+      .from(documentCollaborator)
+      .where(
+        and(
+          eq(documentCollaborator.documentId, documentId),
+          eq(documentCollaborator.userId, userId)
+        )
+      )
+      .limit(1);
+
+    return !!collaborator;
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to check document collaborator"
     );
   }
 }
