@@ -128,6 +128,28 @@ export const document = pgTable(
 
 export type Document = InferSelectModel<typeof document>;
 
+export const documentCollaborator = pgTable(
+  "DocumentCollaborator",
+  {
+    documentId: uuid("documentId")
+      .notNull()
+      .references(() => document.id),
+    userId: uuid("userId")
+      .notNull()
+      .references(() => user.id),
+    createdAt: timestamp("createdAt").notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.documentId, table.userId] }),
+    };
+  }
+);
+
+export type DocumentCollaborator = InferSelectModel<
+  typeof documentCollaborator
+>;
+
 export const suggestion = pgTable(
   "Suggestion",
   {

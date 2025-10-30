@@ -3,6 +3,7 @@ import type { ArtifactKind } from "@/components/artifact";
 import {
   deleteDocumentsByIdAfterTimestamp,
   getDocumentsById,
+  isDocumentCollaborator,
   saveDocument,
 } from "@/lib/db/queries";
 import { ChatSDKError } from "@/lib/errors";
@@ -32,7 +33,14 @@ export async function GET(request: Request) {
     return new ChatSDKError("not_found:document").toResponse();
   }
 
-  if (document.userId !== session.user.id) {
+  // Check if user is owner or collaborator
+  const isOwner = document.userId === session.user.id;
+  const isCollaborator = await isDocumentCollaborator({
+    documentId: id,
+    userId: session.user.id,
+  });
+
+  if (!isOwner && !isCollaborator) {
     return new ChatSDKError("forbidden:document").toResponse();
   }
 
@@ -68,7 +76,14 @@ export async function POST(request: Request) {
   if (documents.length > 0) {
     const [doc] = documents;
 
-    if (doc.userId !== session.user.id) {
+    // Check if user is owner or collaborator
+    const isOwner = doc.userId === session.user.id;
+    const isCollaborator = await isDocumentCollaborator({
+      documentId: id,
+      userId: session.user.id,
+    });
+
+    if (!isOwner && !isCollaborator) {
       return new ChatSDKError("forbidden:document").toResponse();
     }
   }

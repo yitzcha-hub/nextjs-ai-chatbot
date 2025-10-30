@@ -2,6 +2,7 @@ import type { UseChatHelpers } from "@ai-sdk/react";
 import { formatDistance } from "date-fns";
 import equal from "fast-deep-equal";
 import { AnimatePresence, motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import {
   type Dispatch,
   memo,
@@ -23,6 +24,7 @@ import { fetcher } from "@/lib/utils";
 import { ArtifactActions } from "./artifact-actions";
 import { ArtifactCloseButton } from "./artifact-close-button";
 import { ArtifactMessages } from "./artifact-messages";
+import { DocumentCollaborators } from "./document-collaborators";
 import { MultimodalInput } from "./multimodal-input";
 import { Toolbar } from "./toolbar";
 import { useSidebar } from "./ui/sidebar";
@@ -86,6 +88,7 @@ function PureArtifact({
   selectedModelId: string;
 }) {
   const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
+  const { data: session } = useSession();
 
   const {
     data: documents,
@@ -418,42 +421,51 @@ function PureArtifact({
                   }
             }
           >
-            <div className="flex flex-row items-start justify-between p-2">
-              <div className="flex flex-row items-start gap-4">
-                <ArtifactCloseButton />
+            <div className="flex flex-col gap-2 p-2">
+              <div className="flex flex-row items-start justify-between">
+                <div className="flex flex-row items-start gap-4">
+                  <ArtifactCloseButton />
 
-                <div className="flex flex-col">
-                  <div className="font-medium">{artifact.title}</div>
+                  <div className="flex flex-col">
+                    <div className="font-medium">{artifact.title}</div>
 
-                  {isContentDirty ? (
-                    <div className="text-muted-foreground text-sm">
-                      Saving changes...
-                    </div>
-                  ) : document ? (
-                    <div className="text-muted-foreground text-sm">
-                      {`Updated ${formatDistance(
-                        new Date(document.createdAt),
-                        new Date(),
-                        {
-                          addSuffix: true,
-                        }
-                      )}`}
-                    </div>
-                  ) : (
-                    <div className="mt-2 h-3 w-32 animate-pulse rounded-md bg-muted-foreground/20" />
-                  )}
+                    {isContentDirty ? (
+                      <div className="text-muted-foreground text-sm">
+                        Saving changes...
+                      </div>
+                    ) : document ? (
+                      <div className="text-muted-foreground text-sm">
+                        {`Updated ${formatDistance(
+                          new Date(document.createdAt),
+                          new Date(),
+                          {
+                            addSuffix: true,
+                          }
+                        )}`}
+                      </div>
+                    ) : (
+                      <div className="mt-2 h-3 w-32 animate-pulse rounded-md bg-muted-foreground/20" />
+                    )}
+                  </div>
                 </div>
+
+                <ArtifactActions
+                  artifact={artifact}
+                  currentVersionIndex={currentVersionIndex}
+                  handleVersionChange={handleVersionChange}
+                  isCurrentVersion={isCurrentVersion}
+                  metadata={metadata}
+                  mode={mode}
+                  setMetadata={setMetadata}
+                />
               </div>
 
-              <ArtifactActions
-                artifact={artifact}
-                currentVersionIndex={currentVersionIndex}
-                handleVersionChange={handleVersionChange}
-                isCurrentVersion={isCurrentVersion}
-                metadata={metadata}
-                mode={mode}
-                setMetadata={setMetadata}
-              />
+              {document && session?.user && (
+                <DocumentCollaborators
+                  documentId={artifact.documentId}
+                  isOwner={document.userId === session.user.id}
+                />
+              )}
             </div>
 
             <div className="h-full max-w-full! items-center overflow-y-scroll bg-background dark:bg-muted">
