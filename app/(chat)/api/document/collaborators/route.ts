@@ -48,10 +48,8 @@ export async function POST(request: Request) {
     return new ChatSDKError("unauthorized:document").toResponse();
   }
 
-  const {
-    documentId,
-    email,
-  }: { documentId: string; email: string } = await request.json();
+  const { documentId, email }: { documentId: string; email: string } =
+    await request.json();
 
   if (!documentId || !email) {
     return new ChatSDKError(
@@ -107,10 +105,8 @@ export async function DELETE(request: Request) {
     return new ChatSDKError("unauthorized:document").toResponse();
   }
 
-  const {
-    documentId,
-    userId,
-  }: { documentId: string; userId: string } = await request.json();
+  const { documentId, userId }: { documentId: string; userId: string } =
+    await request.json();
 
   if (!documentId || !userId) {
     return new ChatSDKError(

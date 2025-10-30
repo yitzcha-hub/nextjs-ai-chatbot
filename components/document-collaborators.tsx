@@ -38,7 +38,7 @@ export function DocumentCollaborators({
       const data = await response.json();
       setCollaborators(data);
       setShowCollaborators(true);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load collaborators");
     }
   };
@@ -101,7 +101,7 @@ export function DocumentCollaborators({
 
       toast.success("Collaborator removed successfully");
       await loadCollaborators();
-    } catch (error) {
+    } catch {
       toast.error("Failed to remove collaborator");
     } finally {
       setIsLoading(false);
@@ -114,18 +114,14 @@ export function DocumentCollaborators({
 
   return (
     <div className="flex flex-col gap-2">
-      <Button
-        onClick={loadCollaborators}
-        size="sm"
-        variant="outline"
-      >
+      <Button onClick={loadCollaborators} size="sm" variant="outline">
         {showCollaborators ? "Hide" : "Manage"} Collaborators
       </Button>
 
       {showCollaborators && (
         <div className="flex flex-col gap-2 rounded-lg border p-3">
           <div className="flex flex-col gap-2">
-            <div className="text-sm font-medium">Add Collaborator</div>
+            <div className="font-medium text-sm">Add Collaborator</div>
             <div className="flex gap-2">
               <Input
                 disabled={isLoading}
@@ -139,11 +135,7 @@ export function DocumentCollaborators({
                 type="email"
                 value={email}
               />
-              <Button
-                disabled={isLoading}
-                onClick={addCollaborator}
-                size="sm"
-              >
+              <Button disabled={isLoading} onClick={addCollaborator} size="sm">
                 Add
               </Button>
             </div>
@@ -151,7 +143,7 @@ export function DocumentCollaborators({
 
           {collaborators.length > 0 && (
             <div className="flex flex-col gap-2">
-              <div className="text-sm font-medium">Current Collaborators</div>
+              <div className="font-medium text-sm">Current Collaborators</div>
               {collaborators.map((collaborator) => (
                 <div
                   className="flex items-center justify-between gap-2 rounded-md border p-2"
@@ -172,7 +164,7 @@ export function DocumentCollaborators({
           )}
 
           {collaborators.length === 0 && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               No collaborators yet
             </div>
           )}

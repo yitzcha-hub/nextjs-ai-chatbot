@@ -2,6 +2,7 @@ import type { UseChatHelpers } from "@ai-sdk/react";
 import { formatDistance } from "date-fns";
 import equal from "fast-deep-equal";
 import { AnimatePresence, motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import {
   type Dispatch,
   memo,
@@ -12,7 +13,6 @@ import {
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
-import { useSession } from "next-auth/react";
 import { codeArtifact } from "@/artifacts/code/client";
 import { imageArtifact } from "@/artifacts/image/client";
 import { sheetArtifact } from "@/artifacts/sheet/client";

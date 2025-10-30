@@ -24,7 +24,6 @@ import {
   chat,
   type DBMessage,
   document,
-  type DocumentCollaborator,
   documentCollaborator,
   message,
   type Suggestion,
