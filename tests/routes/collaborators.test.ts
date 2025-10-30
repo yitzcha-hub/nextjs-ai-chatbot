@@ -4,6 +4,7 @@ import { generateUUID } from "@/lib/utils";
 import { expect, test } from "../fixtures";
 
 const documentsCreatedByAda: Document[] = [];
+let babbageUserId: string;
 
 test.describe
   .serial("/api/document/collaborators", () => {
@@ -118,7 +119,7 @@ test.describe
       expect(collaborators[0].email).toBe(babbageUser.email);
 
       // Store the userId for later tests
-      babbageUser.id = collaborators[0].userId;
+      babbageUserId = collaborators[0].userId;
     });
 
     test("Babbage can now retrieve Ada's document", async ({
@@ -197,19 +198,15 @@ test.describe
       expect(message).toEqual(getMessageByErrorCode(code));
     });
 
-    test("Ada can remove Babbage as a collaborator", async ({
-      adaContext,
-      babbageContext,
-    }) => {
+    test("Ada can remove Babbage as a collaborator", async ({ adaContext }) => {
       const [document] = documentsCreatedByAda;
-      const babbageUser = babbageContext.user;
 
       const response = await adaContext.request.delete(
         "/api/document/collaborators",
         {
           data: {
             documentId: document.id,
-            userId: babbageUser.id,
+            userId: babbageUserId,
           },
         }
       );
